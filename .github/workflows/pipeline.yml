@@ -1,5 +1,9 @@
-‌# Nome do Workflow
-name: DevOpsLab Pipeline
+name: DevOpsLab Pipeline  # Check failure on line 2 in .github/workflows/pipeline.yml
+
+on:
+  push:
+    branches:
+      - main
 
 # Evento que irá acionar a pipeline
 on:
