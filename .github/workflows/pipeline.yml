@@ -44,16 +44,14 @@ jobs:
     runs-on: ubuntu-latest
     needs: Build
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@v1
-        with:
-          languages: python
-
-      - name: Analyze with CodeQL
-        uses: github/codeql-action/analyze@v1
+        uses: github/codeql-action/init@v2
+      
+      - name: Autobuild
+        uses: github/codeql-action/autobuild@v2
+        
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v2
 
   LoginArtifactRegistry:
     runs-on: ubuntu-latest
