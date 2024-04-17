@@ -40,10 +40,20 @@ jobs:
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
-  # SAST:
-  #    runs-on: ubuntu-latest
-  #    needs: Build
-  #    steps:
+  SAST:
+    runs-on: ubuntu-latest
+    needs: Build
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v1
+        with:
+          languages: python
+
+      - name: Analyze with CodeQL
+        uses: github/codeql-action/analyze@v1
 
   LoginArtifactRegistry:
     runs-on: ubuntu-latest
@@ -82,7 +92,7 @@ jobs:
   #         docker push ${{ vars.GOOGLE_ARTIFACT }}/${{ vars.GOOGLE_PROJECT_ID }}/${{ vars.GOOGLE_REPONAME }}/${{ vars.GOOGLE_MYAPP }}:latest
 
   Deploy:
-    needs: [Build, SonarCloudScan]
+    needs: [Build, SonarCloudScan, SAST]
     runs-on: ubuntu-latest
 
     steps:
