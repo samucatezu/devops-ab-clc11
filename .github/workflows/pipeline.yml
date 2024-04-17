@@ -70,19 +70,19 @@ jobs:
         run: |
           docker build -t ${{ vars.GOOGLE_ARTIFACT }}/${{ vars.GOOGLE_PROJECT_ID }}/${{ vars.GOOGLE_REPONAME }}/${{ vars.GOOGLE_MYAPP }}:latest .
 
-  PushImage:
-    runs-on: ubuntu-latest
-    needs: BuildImage
-    steps:
-      - name: Download Repository
-        uses: actions/checkout@v4
+  # PushImage:
+  #   runs-on: ubuntu-latest
+  #   needs: BuildImage
+  #   steps:
+  #     - name: Download Repository
+  #       uses: actions/checkout@v4
 
-      - name: Push Image
-        run: |
-          docker push ${{ vars.GOOGLE_ARTIFACT }}/${{ vars.GOOGLE_PROJECT_ID }}/${{ vars.GOOGLE_REPONAME }}/${{ vars.GOOGLE_MYAPP }}:latest
+  #     - name: Push Image
+  #       run: |
+  #         docker push ${{ vars.GOOGLE_ARTIFACT }}/${{ vars.GOOGLE_PROJECT_ID }}/${{ vars.GOOGLE_REPONAME }}/${{ vars.GOOGLE_MYAPP }}:latest
 
   Deploy:
-    needs: [Build, SonarCloudScan, PushImage]
+    needs: [Build, SonarCloudScan]
     runs-on: ubuntu-latest
 
     steps:
