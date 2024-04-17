@@ -28,10 +28,29 @@ jobs:
       - name: Unit Test
         run: python -m unittest -v test
 
+  SonarCloudScan:
+    runs-on: ubuntu-latest
+    needs: Build
+    steps:
+      - name: Download Repository
+        uses: actions/checkout@v4
+
       - name: SonarCloud Scan
         uses: sonarsource/sonarcloud-github-action@master  #https://github.com/marketplace/actions/sonarcloud-scan
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+  # SAST:
+  #    runs-on: ubuntu-latest
+  #    needs: Build
+  #    steps:
+
+  LoginArtifactRegistry:
+    runs-on: ubuntu-latest
+    needs: SonarCloudScan
+    steps:
+      - name: Download Repository
+        uses: actions/checkout@v4
 
       - name: Login no Artifact Registry
         uses: docker/login-action@v3      # https://github.com/marketplace/actions/docker-login#google-artifact-registry-gar
@@ -40,16 +59,30 @@ jobs:
           username: _json_key
           password: '${{ secrets.GOOGLE_CREDENTIALS }}'
 
+  BuildImage:
+    runs-on: ubuntu-latest
+    needs: LoginArtifactRegistry
+    steps:  
+      - name: Download Repository
+        uses: actions/checkout@v4
+
       - name: Build Image
         run: |
           docker build -t ${{ vars.GOOGLE_ARTIFACT }}/${{ vars.GOOGLE_PROJECT_ID }}/${{ vars.GOOGLE_REPONAME }}/${{ vars.GOOGLE_MYAPP }}:latest .
+
+  PushImage:
+    runs-on: ubuntu-latest
+    needs: BuildImage
+    steps:
+      - name: Download Repository
+        uses: actions/checkout@v4
 
       - name: Push Image
         run: |
           docker push ${{ vars.GOOGLE_ARTIFACT }}/${{ vars.GOOGLE_PROJECT_ID }}/${{ vars.GOOGLE_REPONAME }}/${{ vars.GOOGLE_MYAPP }}:latest
 
   Deploy:
-    needs: Build
+    needs: [Build, SonarCloudScan, SAST, PushImage]
     runs-on: ubuntu-latest
 
     steps:
